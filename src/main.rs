@@ -7,7 +7,7 @@ fn main() {
     // use args_os instead
     let args: Vec<String> = env::args().collect();
 
-    let config = parse_config(&args);
+    let config = Config::new(&args);
 
     // note that ! denotes macro in Rust
     println!("Searching for {}", config.query);
@@ -31,10 +31,12 @@ struct Config {
     filename: String,
 }
 
-fn parse_config(args: &[String]) -> Config {
-    // todo: clone is inefficient, own iterator instead
-    let query = args[1].clone();
-    let filename = args[2].clone();
+impl Config {
+    fn new(args: &[String]) -> Config {
+        // todo: clone is inefficient, own iterator instead
+        let query = args[1].clone();
+        let filename = args[2].clone();
 
-    Config { query, filename }
+        Config { query, filename }
+    }
 }
