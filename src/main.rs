@@ -1,4 +1,5 @@
 use std::env;
+use std::process;
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -7,7 +8,10 @@ fn main() {
     // use args_os instead
     let args: Vec<String> = env::args().collect();
 
-    let config = Config::new(&args);
+    let config = Config::new(&args).unwrap_or_else(|err| {
+        println!("Problem parsing args: {}", err);
+        process::exit(1);
+    });
 
     // note that ! denotes macro in Rust
     println!("Searching for {}", config.query);
@@ -32,11 +36,19 @@ struct Config {
 }
 
 impl Config {
-    fn new(args: &[String]) -> Config {
+
+    // Result<,> from prelude
+    // 'static is lifetime of program
+    fn new(args: &[String]) -> Result<Config, &'static str> {
+
+        if args.len() < 3 {
+            return Err("not enough args");
+        }
+
         // todo: clone is inefficient, own iterator instead
         let query = args[1].clone();
         let filename = args[2].clone();
 
-        Config { query, filename }
+        Ok(Config { query, filename })
     }
 }
