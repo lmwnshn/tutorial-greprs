@@ -1,5 +1,6 @@
 use std::env;
 use std::process;
+use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -17,15 +18,27 @@ fn main() {
     println!("Searching for {}", config.query);
     println!("In file {}", config.filename);
 
-    // expect = panic if something bad happens
-    let mut f = File::open(config.filename).expect("file not found");
+    if let Err(e) = run(config) {
+        println!("Error: {}", e);
+
+        process::exit(1);
+    }
+}
+
+// () = unit type
+// Box<> is a trait
+fn run(config: Config) -> Result<(), Box<Error>> {
+    // ? = if there is an error, propagate upwards via Result
+    let mut f = File::open(config.filename)?;
 
     let mut contents = String::new();
     // no & = passing owner = invalid to refer to contents after this call
     // only & = passing immutable reference, hence we need mut
-    f.read_to_string(&mut contents).expect("error reading file");
+    f.read_to_string(&mut contents)?;
 
     println!("Text:\n{}", contents);
+
+    Ok(())
 }
 
 struct Config {
